@@ -22,8 +22,8 @@ fi
 jar_files=( "$chronos_home"/target/chronos*.jar )
 echo "Using jar file: $jar_files[0]"
 
-# This assumes there is a file, /etc/mesos/zk that contains the ZK string.
-mesos_master="$( < /etc/mesos/zk)"
+# MESOS_MASTER variable or assuming there is a file, /etc/mesos/zk, that contains the ZK string
+mesos_master="${MESOS_MASTER:-$( < /etc/mesos/zk)}"
 tmp="${mesos_master//zk:\/\/}"
 zk_hosts="${tmp/\/*}"
 
