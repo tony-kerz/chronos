@@ -28,7 +28,8 @@ class MesosJobFramework @Inject()(
                                    val config: SchedulerConfiguration,
                                    val frameworkIdUtil: FrameworkIdUtil,
                                    val taskBuilder: MesosTaskBuilder,
-                                   val mesosOfferReviver: MesosOfferReviver)
+                                   val mesosOfferReviver: MesosOfferReviver,
+                                   val constraintChecker: ConstraintChecker = new ConstraintChecker())
   extends Scheduler {
 
   val frameworkName = "chronos"
@@ -116,15 +117,6 @@ class MesosJobFramework @Inject()(
   def generateLaunchableTasks(offerResources: mutable.HashMap[Offer, Resources]): mutable.Buffer[(String, BaseJob, Offer)] = {
     val tasks = mutable.Buffer[(String, BaseJob, Offer)]()
 
-    def checkConstraints(attributes: Seq[Protos.Attribute], constraints: Seq[Constraint]): Boolean = {
-      constraints.foreach { c =>
-        if (!c.matches(attributes)) {
-          return false
-        }
-      }
-      true
-    }
-
     @tailrec
     def generate() {
       taskManager.getTask match {
@@ -143,7 +135,7 @@ class MesosJobFramework @Inject()(
               case None =>
                 val neededResources = new Resources(job)
                 offerResources.toIterator.find { ors =>
-                  ors._2.canSatisfy(neededResources) && checkConstraints(ors._1.getAttributesList.asScala, job.constraints)
+                  ors._2.canSatisfy(neededResources) && constraintChecker.checkConstraints(ors._1, job.constraints)
                 } match {
                   case Some((offer, resources)) =>
                     // Subtract this job's resource requirements from the remaining available resources in this offer.

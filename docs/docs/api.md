@@ -23,6 +23,7 @@ All examples in this section assume that you've found a running leader at `chron
 - [Obtaining Remote Executables](#obtaining-remote-executables)
 - [Job Configuration](#job-configuration)
 - [Sample Job](#sample-job)
+- [Constraints](#constraints)
 
 
 ## Leaders
@@ -57,7 +58,7 @@ Get the job definition by searching for the following attributes by using the se
 * `name`: Name of a job.
 * `command`: Command to execute.
 * `any`: Search term contained in `name` or `command`.
-* 
+*
 * Endpoint: __/scheduler/jobs/search__
 * Method: __GET__
 * Example: `curl -L -X GET chronos-node:8080/scheduler/jobs/search?name=request_event_counter_hourly`
@@ -387,6 +388,10 @@ When specifying the `command` field in your job hash, use `url-runner.bash` (mak
 ```
 
 ## Constraints
+
+These constraints will work against attributes that are specifically set on the Mesos slaves [as described in the Mesos documentation](http://mesos.apache.org/documentation/latest/configuration).
+
+If a `hostname` attribute is not explicitly specified, one will automatically be created and made available for constraints [as it is in Marathon](https://mesosphere.github.io/marathon/docs/constraints). It should be noted that calling out specific hostnames is not resilient to slave failure and should be avoided if possible.
 
 ### EQUALS constraint
 
